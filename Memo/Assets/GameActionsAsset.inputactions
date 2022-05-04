@@ -1,0 +1,34 @@
+{
+    "name": "GameActionsAsset",
+    "maps": [
+        {
+            "name": "GameActionsMap",
+            "id": "aa92654c-25b0-45f2-b2f8-e78e4ec50775",
+            "actions": [
+                {
+                    "name": "Restart",
+                    "type": "Button",
+                    "id": "3f68a4d5-8ed5-4630-8896-61cb7f3fb4af",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "b44204cd-b30d-4973-81d2-18d59282a19e",
+                    "path": "<Keyboard>/#(R)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Restart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
