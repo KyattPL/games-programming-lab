@@ -20,18 +20,25 @@ namespace StarterAssets
 		public float RotationSpeed = 1.0f;
 		[Tooltip("Acceleration and deceleration")]
 		public float SpeedChangeRate = 10.0f;
+		[Tooltip("Audio source to play run sound")]
+		public AudioSource RunAudioSource;
 
 		[Space(10)]
 		[Tooltip("The height the player can jump")]
 		public float JumpHeight = 1.2f;
 		[Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
 		public float Gravity = -15.0f;
+		[Tooltip("Audio source to play jump sound")]
+		public AudioSource JumpSoundSource;
 
 		[Space(10)]
 		[Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
 		public float JumpTimeout = 0.1f;
 		[Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
 		public float FallTimeout = 0.15f;
+		[Space(10)]
+		public float ShootTimeout = 0.2f;
+		public AudioSource ShootSoundSource;
 
 		[Header("Player Grounded")]
 		[Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -63,6 +70,7 @@ namespace StarterAssets
 		// timeout deltatime
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
+		private float _shootTimeoutDelta;
 
 	
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
@@ -108,6 +116,7 @@ namespace StarterAssets
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
+			_shootTimeoutDelta = ShootTimeout;
 		}
 
 		private void Update()
@@ -115,6 +124,7 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			Shoot();
 		}
 
 		private void LateUpdate()
@@ -192,6 +202,9 @@ namespace StarterAssets
 			{
 				// move
 				inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
+				if (!RunAudioSource.isPlaying) {
+					RunAudioSource.Play();
+				}
 			}
 
 			// move the player
@@ -216,6 +229,9 @@ namespace StarterAssets
 				{
 					// the square root of H * -2 * G = how much velocity needed to reach desired height
 					_verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+					if (!JumpSoundSource.isPlaying) {
+						JumpSoundSource.Play();
+					}
 				}
 
 				// jump timeout
@@ -263,6 +279,23 @@ namespace StarterAssets
 
 			// when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
 			Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
+		}
+
+		private void Shoot()
+		{
+			if (_input.shoot && _shootTimeoutDelta <= 0.0f) {
+				_shootTimeoutDelta = ShootTimeout;
+				_input.shoot = false;
+				
+				ShootSoundSource.Play();
+
+				Debug.Log(_input.shoot);
+
+			}
+
+			if (_shootTimeoutDelta > 0.0f) {
+				_shootTimeoutDelta -= Time.deltaTime;
+			}
 		}
 	}
 }
