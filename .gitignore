@@ -61,3 +61,5 @@ crashlytics-build.properties
 # Custom
 */Temp/**
 */Library/**
+*/obj/**
+*/Logs/**
