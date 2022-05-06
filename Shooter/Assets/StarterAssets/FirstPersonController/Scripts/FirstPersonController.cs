@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -39,6 +41,12 @@ namespace StarterAssets
 		[Space(10)]
 		public float ShootTimeout = 0.2f;
 		public AudioSource ShootSoundSource;
+		public ParticleSystem ShootParticleSystem;
+
+		public event Action OnScoreUpdate;
+    	public int score { get; private set; }
+		public event Action OnLivesUpdate;
+		public int lives { get; private set; }
 
 		[Header("Player Grounded")]
 		[Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -79,6 +87,7 @@ namespace StarterAssets
 		private CharacterController _controller;
 		private StarterAssetsInputs _input;
 		private GameObject _mainCamera;
+		public GameObject gunCamera;
 
 		private const float _threshold = 0.01f;
 
@@ -117,6 +126,8 @@ namespace StarterAssets
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
 			_shootTimeoutDelta = ShootTimeout;
+			score = 0;
+			lives = 3;
 		}
 
 		private void Update()
@@ -202,7 +213,7 @@ namespace StarterAssets
 			{
 				// move
 				inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
-				if (!RunAudioSource.isPlaying) {
+				if (!RunAudioSource.isPlaying && Grounded) {
 					RunAudioSource.Play();
 				}
 			}
@@ -288,13 +299,39 @@ namespace StarterAssets
 				_input.shoot = false;
 				
 				ShootSoundSource.Play();
+				ShootParticleSystem.Play();
 
-				Debug.Log(_input.shoot);
+				Debug.DrawRay(_mainCamera.transform.position, 3 * _mainCamera.transform.forward, Color.cyan, 3.0f, false);
+				Ray ray = new Ray(_mainCamera.transform.position, _mainCamera.transform.forward);
+				RaycastHit hit;
 
+				if (Physics.Raycast(ray, out hit)) {
+					if (hit.transform.tag == "Enemy") {
+						score += 3;
+						Destroy(hit.transform.gameObject);
+						OnScoreUpdate();
+					}
+				}
 			}
 
 			if (_shootTimeoutDelta > 0.0f) {
 				_shootTimeoutDelta -= Time.deltaTime;
+			}
+		}
+
+		private void OnTriggerEnter(Collider other)
+		{
+			if (other.gameObject.tag == "Coin") {
+				score += 1;
+				OnScoreUpdate();
+				Destroy(other.gameObject);
+			} else if (other.gameObject.tag == "Enemy") {
+				lives -= 1;
+				OnLivesUpdate();
+				Destroy(other.gameObject);
+				if (lives == 0) {
+					SceneManager.LoadScene("SampleScene");
+				}
 			}
 		}
 	}
