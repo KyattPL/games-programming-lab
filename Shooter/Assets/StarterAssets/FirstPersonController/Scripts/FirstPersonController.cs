@@ -38,6 +38,7 @@ namespace StarterAssets
 		public float JumpTimeout = 0.1f;
 		[Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
 		public float FallTimeout = 0.15f;
+        
 		[Space(10)]
 		public float ShootTimeout = 0.2f;
 		public AudioSource ShootSoundSource;
